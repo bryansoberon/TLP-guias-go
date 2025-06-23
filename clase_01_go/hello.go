@@ -7,8 +7,140 @@ import (
 	//"strconv"
 	//"unicode/utf8"
 	//"unsafe"
+	//"strconv"
+	//"errors"
+	"strings"
+	"time"
 )
 
+func main() {
+	fmt.Println("🚀 OPTIMIZACIONES DE PERFORMANCE")
+	fmt.Println("================================")
+	// ✅ Pre-asignar slices cuando se conoce el tamaño
+	demonstrateSlicePreallocation()
+	// ✅ Usar strings.Builder para concatenación
+	demonstrateStringBuilding()
+	// ✅ Evitar conversiones innecesarias
+	demonstrateTypeConversions()
+	// ✅ Reutilizar variables cuando sea posible
+	demonstrateVariableReuse()
+}
+func demonstrateSlicePreallocation() {
+	fmt.Println("\n--- Preasignación de Slices ---")
+	size := 1000
+	// ❌ Malo: crecimiento dinámico
+	start := time.Now()
+	var badSlice []int
+	for i := 0; i < size; i++ {
+		badSlice = append(badSlice, i)
+		// Múltiplesreasignaciones
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: preasignar capacidad
+	start = time.Now()
+	goodSlice := make([]int, 0, size) // Capacidad conocida
+	for i := 0; i < size; i++ {
+		goodSlice = append(goodSlice, i)
+	}
+	goodDuration := time.Since(start)
+	// ✅ Mejor: asignar longitud exacta si es posible
+	start = time.Now()
+	bestSlice := make([]int, size)
+	for i := 0; i < size; i++ {
+		bestSlice[i] = i // Asignación directa
+	}
+	bestDuration := time.Since(start)
+	fmt.Printf("Sin preasignación: %v\n", badDuration)
+	fmt.Printf("Con capacidad: %v\n", goodDuration)
+	fmt.Printf("Con longitud exacta: %v\n", bestDuration)
+}
+func demonstrateStringBuilding() {
+	fmt.Println("\n--- Construcción de Strings ---")
+	parts := []string{"Hola", " ", "mundo", " ", "desde", " ",
+		"Go"}
+	// ❌ Malo: concatenación directa (múltiples allocaciones)
+
+	start := time.Now()
+	var badResult string
+	for _, part := range parts {
+		badResult += part // Crea nuevo string cada vez
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: usar strings.Builder
+	start = time.Now()
+	var builder strings.Builder
+	builder.Grow(50) // Pre-asignar capacidad estimada
+	for _, part := range parts {
+		builder.WriteString(part)
+	}
+	goodResult := builder.String()
+	goodDuration := time.Since(start)
+	// ✅ También bueno: strings.Join para este caso específico
+	start = time.Now()
+	bestResult := strings.Join(parts, "")
+	bestDuration := time.Since(start)
+	fmt.Printf("Concatenación: %v -> '%s'\n", badDuration,
+		badResult)
+	fmt.Printf("Builder: %v -> '%s'\n", goodDuration, goodResult)
+	fmt.Printf("Join: %v -> '%s'\n", bestDuration, bestResult)
+}
+func demonstrateTypeConversions() {
+	fmt.Println("\n--- Conversiones de Tipo ---")
+	// ✅ Evitar conversiones innecesarias en loops
+	var numbers []int64 = make([]int64, 1000)
+	for i := range numbers {
+		numbers[i] = int64(i)
+	}
+	// ❌ Malo: conversión en cada iteración
+	start := time.Now()
+	var badSum int64
+	for _, num := range numbers {
+		badSum += int64(num) // Conversión innecesaria
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: evitar conversiones
+	start = time.Now()
+	var goodSum int64
+	for _, num := range numbers {
+		goodSum += num // Sin conversión
+	}
+	goodDuration := time.Since(start)
+	fmt.Printf("Con conversiones innecesarias: %v (suma: %d)\n",
+		badDuration, badSum)
+	fmt.Printf("Sin conversiones: %v (suma: %d)\n", goodDuration,
+		goodSum)
+}
+func demonstrateVariableReuse() {
+	fmt.Println("\n--- Reutilización de Variables ---")
+	data := make([]map[string]int, 100)
+	for i := range data {
+		data[i] = map[string]int{"value": i}
+	}
+	// ❌ Malo: declarar variables en cada iteración
+
+	start := time.Now()
+	var badTotal int
+	for _, item := range data {
+		tempValue := item["value"] // Nueva variable cada vez
+		tempSquared := tempValue * tempValue
+		badTotal += tempSquared
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: reutilizar variables fuera del loop
+	start = time.Now()
+	var goodTotal int
+	var value, squared int // Declarar una vez
+	for _, item := range data {
+		value = item["value"]
+		squared = value * value
+		goodTotal += squared
+	}
+	goodDuration := time.Since(start)
+	fmt.Printf("Declaración repetida: %v (total: %d)\n",
+		badDuration, badTotal)
+	fmt.Printf("Reutilización: %v (total: %d)\n", goodDuration,
+		goodTotal)
+}
 
 /*"""
 
@@ -595,5 +727,396 @@ func main() {
 	fmt.Printf("Offset de 'b': %d\n", unsafe.Offsetof(est.b))
 	fmt.Printf("Offset de 'c': %d\n", unsafe.Offsetof(est.c))
 }
+
+//Declaración Corta (:=) vs Asignación (=)
+func main() {
+	// := es declaración corta (short variable declaration)
+	// Solo puede usarse dentro de funciones
+	// Declara e inicializa una nueva variable
+	nombre := "Juan" // Declara nueva variable 'nombre'como string
+	edad := 25       // Declara nueva variable 'edad' como
+	int
+	activo := true // Declara nueva variable 'activo' como
+	bool
+	fmt.Printf("Declaración corta: %s, %d, %t\n", nombre, edad,
+		activo)
+	// = es asignación (assignment)
+	// Solo puede usarse con variables ya declaradas
+	nombre = "Ana" // Asigna nuevo valor a variable
+	existente
+	edad = 30 // Asigna nuevo valor a variable
+	existente
+	activo = false // Asigna nuevo valor a variable
+	existente
+	fmt.Printf("Después de asignación: %s, %d, %t\n", nombre,
+		edad, activo)
+	// Error común: tratar de usar := con variable ya declarada
+	// nombre := "Pedro" // ERROR: no new variables on left side of :=
+	// Error común: tratar de usar = con variable no declarada
+	// salario = 50000 // ERROR: undefined: salario
+	// Correcto: declarar primero, asignar después
+	var salario int // Declaración
+	salario = 50000 // Asignación
+	fmt.Printf("Salario: %d\n", salario)
+}
+
+
+// Declaración Múltiple con :=
+func main() {
+	// Declaración múltiple con :=
+	x, y, z := 1, 2.5, "tres"
+	fmt.Printf("Múltiple: x=%d, y=%.1f, z=%s\n", x, y, z)
+	// Al menos una variable debe ser nueva para usar :=
+	a := 10
+	// a, b := 20, 30 // ERROR: no new variables (si 'a' ya existe)
+	a, b := 20, 30 // OK: 'b' es nueva variable
+	fmt.Printf("a=%d, b=%d\n", a, b)
+	// Reasignación múltiple con =
+	a, b = 100, 200
+	fmt.Printf("Después de reasignación: a=%d, b=%d\n", a, b)
+	// Intercambio de variables (swap)
+	a, b = b, a
+	fmt.Printf("Después de intercambio: a=%d, b=%d\n", a, b)
+	// Funciones que retornan múltiples valores
+	cociente, resto := dividir(17, 5)
+	fmt.Printf("17 ÷ 5 = %d, resto = %d\n", cociente, resto)
+	// Ignorar valores con _
+	resultado, _ := dividir(20, 3) // Ignora el resto
+	fmt.Printf("Solo cociente: %d\n", resultado)
+	// Manejo de errores típico en Go
+	valor, err := convertirString("123")
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+	} else {
+		fmt.Printf("Valor convertido: %d\n", valor)
+	}
+}
+func dividir(a, b int) (int, int) {
+	return a / b, a % b
+}
+func convertirString(s string) (int, error) {
+	// Simulación de conversión
+	if s == "123" {
+		return 123, nil
+	}
+	return 0, fmt.Errorf("no se puede convertir '%s'", s)
+}
+
+//Scoping y Shadowing
+
+
+var global = "global" // Variable global
+func main() {
+	// Variable local que sombrea la global
+	global := "local"
+	fmt.Printf("Variable local: %s\n", global)
+	// Crear nuevo scope con bloque
+	{
+		// Nueva variable que sombrea la local
+		global := "bloque"
+		fmt.Printf("Variable de bloque: %s\n", global)
+
+		// Declarar nueva variable en este scope
+		temp := "temporal"
+		fmt.Printf("Variable temporal: %s\n", temp)
+	}
+	// temp no existe aquí
+	// fmt.Println(temp) // ERROR: undefined
+	fmt.Printf("De vuelta a local: %s\n", global)
+	// Acceder a la variable global original
+	fmt.Printf("Variable global original: %s\n", getGlobal())
+	// Caso especial: redeclaración parcial
+	x, y := 1, 2
+	fmt.Printf("Iniciales: x=%d, y=%d\n", x, y)
+	// Solo y es nueva, x ya existe pero se permite
+	x, z := 10, 30 // x se reasigna, z se declara
+	fmt.Printf("Después: x=%d, y=%d, z=%d\n", x, y, z)
+	// Shadowing en loops
+	for i := 0; i < 3; i++ {
+		// i es local al loop
+		for i := 10; i < 13; i++ { // Nueva i que sombrea la
+			exterior
+			fmt.Printf("Loop interno i=%d\n", i)
+		}
+		fmt.Printf("Loop externo i=%d\n", i)
+	}
+}
+func getGlobal() string {
+	return global // Accede a la variable global
+}
+//CASOS DE ERROR ()
+
+
+
+// Nomenclatura y Convenciones
+
+
+// ✅ BUENAS PRÁCTICAS
+// Constantes: SCREAMING_SNAKE_CASE o PascalCase
+const (
+	MAX_CONNECTIONS = 100
+	DefaultTimeout  = 30
+)
+
+// Variables públicas: PascalCase (exportadas)
+var GlobalConfig string
+
+// Variables privadas: camelCase
+var localCounter int
+
+// Tipos: PascalCase
+type UserAccount struct {
+	ID       uint64 // Campos públicos: PascalCase
+	userName string // Campos privados: camelCase
+	isActive bool
+}
+
+// Interfaces: PascalCase, preferiblemente terminadas en -er
+type DataReader interface {
+	Read() ([]byte, error)
+}
+
+// Funciones públicas: PascalCase
+func ProcessData() {}
+
+// Funciones privadas: camelCase
+func validateInput() {}
+
+// ❌ MALAS PRÁCTICAS (evitar)
+// var snake_case_var int // No usar snake_case
+// var SCREAMING_VAR int // No usar SCREAMING para variables
+// const mixedCase = 10 // Inconsistente
+// type userdata struct{} // Debería ser UserData
+func main() {
+	// ✅ Variables locales: camelCase descriptivo
+	userCount := 10
+	isProcessing := true
+	maxRetryAttempts := 3
+	// ✅ Nombres descriptivos, no abreviaturas oscuras
+	customer := UserAccount{ID: 1, userName: "john_doe"}
+	// ❌ Evitar nombres muy cortos o crípticos
+	// u := UserAccount{} // Muy corto
+	// usrAcct := UserAccount{} // Abreviatura confusa
+	fmt.Printf("User: %+v, Count: %d, Processing: %t, Max Retries: %d\n",
+		customer, userCount, isProcessing, maxRetryAttempts)
+}
+
+
+//manejo de errores y validación
+// ✅ Definir errores como variables o constantes
+var (
+	ErrInvalidInput     = errors.New("entrada inválida")
+	ErrDataNotFound     = errors.New("datos no encontrados")
+	ErrConnectionFailed = errors.New("falló la conexión")
+)
+
+// ✅ Errores personalizados con contexto
+type ValidationError struct {
+	Field string
+	Value interface{}
+	Msg   string
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("validación falló en campo '%s' con valor '%v': %s", e.Field, e.Value, e.Msg)
+}
+func main() {
+	// ✅ Siempre verificar errores
+	result, err := divide(10, 0)
+	if err != nil {
+		fmt.Printf("Error en división: %v\n", err)
+	} else {
+		fmt.Printf("Resultado: %.2f\n", result)
+	}
+	// ✅ Validación temprana
+	if err := validateUser("", 15); err != nil {
+		fmt.Printf("Error en validación: %v\n", err)
+		return
+	}
+	// ✅ Usar conversiones seguras
+	safeValue, err := safeStringToInt("123")
+	if err != nil {
+		fmt.Printf("Error en conversión: %v\n", err)
+	} else {
+		fmt.Printf("Valor convertido: %d\n", safeValue)
+	}
+	// ✅ Inicialización defensiva
+	data := initializeData()
+	if data == nil {
+		fmt.Println("Error: no se pudo inicializar datos")
+		return
+	}
+	fmt.Printf("Datos inicializados: %v\n", data)
+}
+func divide(a, b float64) (float64, error) {
+	if b == 0 {
+		return 0, errors.New("división por cero")
+	}
+	return a / b, nil
+}
+func validateUser(name string, age int) error {
+	if name == "" {
+		return &ValidationError{Field: "name", Value: name, Msg: "no puede estar vacío"}
+	}
+	if age < 18 {
+		return &ValidationError{Field: "age", Value: age, Msg: "debe ser mayor de 18"}
+	}
+	return nil
+}
+func safeStringToInt(s string) (int, error) {
+	if s == "" {
+		return 0, ErrInvalidInput
+	}
+	value, err := strconv.Atoi(s)
+	if err != nil {
+
+		return 0, fmt.Errorf("no se pudo convertir '%%s' a entero:%w", s, err)
+	}
+	return value, nil
+}
+func initializeData() map[string]interface{} {
+	// ✅ Verificar condiciones antes de proceder
+	data := make(map[string]interface{})
+	if data == nil {
+		return nil
+	}
+	data["initialized"] = true
+	data["timestamp"] = "2024-01-01T00:00:00Z"
+	return data
+}
+
+
+
+//Performance y Memoria
+
+func main() {
+	fmt.Println("🚀 OPTIMIZACIONES DE PERFORMANCE")
+	fmt.Println("================================")
+	// ✅ Pre-asignar slices cuando se conoce el tamaño
+	demonstrateSlicePreallocation()
+	// ✅ Usar strings.Builder para concatenación
+	demonstrateStringBuilding()
+	// ✅ Evitar conversiones innecesarias
+	demonstrateTypeConversions()
+	// ✅ Reutilizar variables cuando sea posible
+	demonstrateVariableReuse()
+}
+func demonstrateSlicePreallocation() {
+	fmt.Println("\n--- Preasignación de Slices ---")
+	size := 1000
+	// ❌ Malo: crecimiento dinámico
+	start := time.Now()
+	var badSlice []int
+	for i := 0; i < size; i++ {
+		badSlice = append(badSlice, i)
+		// Múltiplesreasignaciones
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: preasignar capacidad
+	start = time.Now()
+	goodSlice := make([]int, 0, size) // Capacidad conocida
+	for i := 0; i < size; i++ {
+		goodSlice = append(goodSlice, i)
+	}
+	goodDuration := time.Since(start)
+	// ✅ Mejor: asignar longitud exacta si es posible
+	start = time.Now()
+	bestSlice := make([]int, size)
+	for i := 0; i < size; i++ {
+		bestSlice[i] = i // Asignación directa
+	}
+	bestDuration := time.Since(start)
+	fmt.Printf("Sin preasignación: %v\n", badDuration)
+	fmt.Printf("Con capacidad: %v\n", goodDuration)
+	fmt.Printf("Con longitud exacta: %v\n", bestDuration)
+}
+func demonstrateStringBuilding() {
+	fmt.Println("\n--- Construcción de Strings ---")
+	parts := []string{"Hola", " ", "mundo", " ", "desde", " ",
+		"Go"}
+	// ❌ Malo: concatenación directa (múltiples allocaciones)
+
+	start := time.Now()
+	var badResult string
+	for _, part := range parts {
+		badResult += part // Crea nuevo string cada vez
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: usar strings.Builder
+	start = time.Now()
+	var builder strings.Builder
+	builder.Grow(50) // Pre-asignar capacidad estimada
+	for _, part := range parts {
+		builder.WriteString(part)
+	}
+	goodResult := builder.String()
+	goodDuration := time.Since(start)
+	// ✅ También bueno: strings.Join para este caso específico
+	start = time.Now()
+	bestResult := strings.Join(parts, "")
+	bestDuration := time.Since(start)
+	fmt.Printf("Concatenación: %v -> '%s'\n", badDuration,
+		badResult)
+	fmt.Printf("Builder: %v -> '%s'\n", goodDuration, goodResult)
+	fmt.Printf("Join: %v -> '%s'\n", bestDuration, bestResult)
+}
+func demonstrateTypeConversions() {
+	fmt.Println("\n--- Conversiones de Tipo ---")
+	// ✅ Evitar conversiones innecesarias en loops
+	var numbers []int64 = make([]int64, 1000)
+	for i := range numbers {
+		numbers[i] = int64(i)
+	}
+	// ❌ Malo: conversión en cada iteración
+	start := time.Now()
+	var badSum int64
+	for _, num := range numbers {
+		badSum += int64(num) // Conversión innecesaria
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: evitar conversiones
+	start = time.Now()
+	var goodSum int64
+	for _, num := range numbers {
+		goodSum += num // Sin conversión
+	}
+	goodDuration := time.Since(start)
+	fmt.Printf("Con conversiones innecesarias: %v (suma: %d)\n",
+		badDuration, badSum)
+	fmt.Printf("Sin conversiones: %v (suma: %d)\n", goodDuration,
+		goodSum)
+}
+func demonstrateVariableReuse() {
+	fmt.Println("\n--- Reutilización de Variables ---")
+	data := make([]map[string]int, 100)
+	for i := range data {
+		data[i] = map[string]int{"value": i}
+	}
+	// ❌ Malo: declarar variables en cada iteración
+
+	start := time.Now()
+	var badTotal int
+	for _, item := range data {
+		tempValue := item["value"] // Nueva variable cada vez
+		tempSquared := tempValue * tempValue
+		badTotal += tempSquared
+	}
+	badDuration := time.Since(start)
+	// ✅ Bueno: reutilizar variables fuera del loop
+	start = time.Now()
+	var goodTotal int
+	var value, squared int // Declarar una vez
+	for _, item := range data {
+		value = item["value"]
+		squared = value * value
+		goodTotal += squared
+	}
+	goodDuration := time.Since(start)
+	fmt.Printf("Declaración repetida: %v (total: %d)\n",
+		badDuration, badTotal)
+	fmt.Printf("Reutilización: %v (total: %d)\n", goodDuration,
+		goodTotal)
+}
+
 
 """*/
