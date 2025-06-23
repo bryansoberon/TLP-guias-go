@@ -733,7 +733,7 @@ func main() {
 	// := es declaración corta (short variable declaration)
 	// Solo puede usarse dentro de funciones
 	// Declara e inicializa una nueva variable
-	nombre := "Juan" // Declara nueva variable 'nombre'como string
+	nombre := "bryan" // Declara nueva variable 'nombre'como string
 	edad := 25       // Declara nueva variable 'edad' como
 	int
 	activo := true // Declara nueva variable 'activo' como
