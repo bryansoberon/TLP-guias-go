@@ -142,7 +142,7 @@ func demonstrateVariableReuse() {
 		goodTotal)
 }
 
-/*"""
+/*
 
 go build -o hello
 
@@ -1117,6 +1117,4 @@ func demonstrateVariableReuse() {
 	fmt.Printf("Reutilización: %v (total: %d)\n", goodDuration,
 		goodTotal)
 }
-
-
-"""*/
+*/
