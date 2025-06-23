@@ -4,9 +4,392 @@ import (
 	"fmt"
 	//"strconv"
 	//"strings"
-	"runtime"
+	//"runtime"
+	"math/rand"
 	"time"
 )
+
+func main() {
+	fmt.Println("=== ESTRUCTURAS FOR ===")
+	// FOR CLÁSICO (C-style)
+	fmt.Println("--- For clásico ---")
+	for i := 0; i < 5; i++ {
+		fmt.Printf("Iteración %d\n", i)
+	}
+	// FOR COMO WHILE
+	fmt.Println("\n--- For como while ---")
+	contador := 0
+	for contador < 3 {
+		fmt.Printf("Contador: %d\n", contador)
+		contador++
+	}
+	// FOR INFINITO
+	fmt.Println("\n--- For infinito con break ---")
+	i := 0
+	for {
+		if i >= 3 {
+			break
+
+		}
+		fmt.Printf("Bucle infinito - iteración: %d\n", i)
+		i++
+	}
+	// FOR CON MÚLTIPLES VARIABLES
+	fmt.Println("\n--- For con múltiples variables ---")
+	for i, j := 0, 10; i < j; i, j = i+1, j-1 {
+		fmt.Printf("i=%d, j=%d, suma=%d\n", i, j, i+j)
+	}
+	// FOR CON CONDICIONES COMPLEJAS
+	fmt.Println("\n--- For con condiciones complejas ---")
+	x, y := 1, 1
+	for x < 100 && y < 100 {
+		fmt.Printf("Fibonacci: x=%d, y=%d\n", x, y)
+		x, y = y, x+y
+	}
+	// RANGE CON SLICES
+	fmt.Println("\n--- Range con slices ---")
+	frutas := []string{"manzana", "banana", "naranja", "uva"}
+	// Con índice y valor
+	for indice, fruta := range frutas {
+
+		fmt.Printf("%d: %s\n", indice, fruta)
+	}
+	// Solo valores
+	fmt.Println("Solo valores:")
+	for _, fruta := range frutas {
+		fmt.Printf("- %s\n", fruta)
+	}
+	// Solo índices
+	fmt.Println("Solo índices:")
+	for indice := range frutas {
+		fmt.Printf("Índice: %d\n", indice)
+	}
+	// RANGE CON MAPS
+	fmt.Println("\n--- Range con maps ---")
+	edades := map[string]int{
+		"Ana":   25,
+		"Luis":  30,
+		"María": 28,
+	}
+	for nombre, edad := range edades {
+		fmt.Printf("%s tiene %d años\n", nombre, edad)
+
+	}
+	// RANGE CON STRINGS
+	fmt.Println("\n--- Range con strings ---")
+	texto := "Hola 世界"
+	// Por runes (caracteres Unicode)
+	for i, caracter := range texto {
+		fmt.Printf("Posición %d: %c (U+%04X)\n", i, caracter, caracter)
+	}
+	// CASOS PRÁCTICOS
+	demonstrarCasosPracticosFor()
+}
+func demonstrarCasosPracticosFor() {
+	fmt.Println("\n--- Casos prácticos con for ---")
+	// 1. Procesamiento de lotes de datos
+	fmt.Println("1. Procesamiento en lotes:")
+	datos := make([]int, 100)
+	for i := range datos {
+		datos[i] = i + 1
+	}
+
+	tamañoLote := 10
+	for i := 0; i < len(datos); i += tamañoLote {
+		fin := i + tamañoLote
+		if fin > len(datos) {
+			fin = len(datos)
+		}
+		lote := datos[i:fin]
+		fmt.Printf(" Procesando lote %d: %d elementos\n", i/tamañoLote+1,
+			len(lote))
+		// Simular procesamiento
+		time.Sleep(50 * time.Millisecond)
+	}
+	// 2. Búsqueda con múltiples criterios
+	fmt.Println("\n2. Búsqueda de usuarios:")
+	usuarios := []struct {
+		ID     int
+		Nombre string
+		Edad   int
+		Activo bool
+		Ciudad string
+	}{
+		{1, "Ana García", 25, true, "Lima"},
+		{2, "Luis Martín", 30, false, "Cusco"},
+		{3, "María López", 28, true, "Lima"},
+
+		{4, "Carlos Ruiz", 35, true, "Arequipa"},
+		{5, "Elena Torres", 29, true, "Lima"},
+	}
+	// Buscar usuarios activos de Lima mayores de 25
+	fmt.Println("Usuarios activos de Lima > 25 años:")
+	for _, usuario := range usuarios {
+		if usuario.Activo && usuario.Ciudad == "Lima" && usuario.Edad > 25 {
+			fmt.Printf(" - %s (%d años)\n", usuario.Nombre,
+				usuario.Edad)
+		}
+	}
+	// 3. Validación de datos con acumuladores
+	fmt.Println("\n3. Validación de formulario:")
+	campos := map[string]string{
+		"nombre":   "Bryan Soberon",
+		"email":    "bryansoberon@email.com",
+		"telefono": "123456789",
+		"edad":     "22",
+		"ciudad":   "cix",
+	}
+	errores := make([]string, 0)
+	camposValidos := 0
+
+	for campo, valor := range campos {
+		if valor == "" {
+			errores = append(errores, fmt.Sprintf("Campo '%s' es requerido", campo))
+		} else {
+			camposValidos++
+			fmt.Printf(" ✅ %s: %s\n", campo, valor)
+		}
+	}
+	if len(errores) > 0 {
+		fmt.Println(" Errores encontrados:")
+		for _, error := range errores {
+			fmt.Printf(" ❌ %s\n", error)
+		}
+	}
+	fmt.Printf(" Campos válidos: %d/%d\n", camposValidos, len(campos))
+	// 4. Generación de reportes con agrupación
+	fmt.Println("\n4. Reporte de ventas por región:")
+	ventas := []struct {
+		Producto string
+		Region   string
+		Monto    float64
+	}{
+		{"Laptop", "Norte", 2500.00},
+		{"Mouse", "Norte", 45.50},
+		{"Laptop", "Sur", 2500.00},
+		{"Teclado", "Centro", 120.00},
+		{"Mouse", "Sur", 45.50},
+		{"Laptop", "Centro", 2500.00},
+	}
+	ventasPorRegion := make(map[string]float64)
+	contadorPorRegion := make(map[string]int)
+	for _, venta := range ventas {
+		ventasPorRegion[venta.Region] += venta.Monto
+		contadorPorRegion[venta.Region]++
+	}
+	for region, total := range ventasPorRegion {
+		promedio := total / float64(contadorPorRegion[region])
+		fmt.Printf(" %s: $%.2f total (%d ventas, promedio: $%.2f)\n",
+			region, total, contadorPorRegion[region], promedio)
+	}
+	// 5. Algoritmo de retry con backoff
+	fmt.Println("\n5. Simulación de retry con backoff:")
+
+	maxIntentos := 5
+	for intento := 1; intento <= maxIntentos; intento++ {
+		fmt.Printf(" Intento %d/%d", intento, maxIntentos)
+		// Simular operación que puede fallar
+		if rand.Float32() < 0.7 { // 70% probabilidad de fallo
+			fmt.Println(" - ❌ Falló")
+			if intento < maxIntentos {
+				// Backoff exponencial
+				delay := time.Duration(intento*intento) * 100 *
+					time.Millisecond
+				fmt.Printf(" Esperando %v antes del siguiente intento...\n", delay)
+				time.Sleep(delay)
+			}
+		} else {
+			fmt.Println(" - ✅ Éxito")
+			break
+		}
+	}
+	// 6. Algoritmo de ordenamiento burbuja
+	fmt.Println("\n6. Ordenamiento burbuja:")
+	numeros := []int{64, 34, 25, 12, 22, 11, 90}
+
+	fmt.Printf(" Array original: %v\n", numeros)
+	n := len(numeros)
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if numeros[j] > numeros[j+1] {
+				numeros[j], numeros[j+1] = numeros[j+1], numeros[j]
+			}
+		}
+	}
+	fmt.Printf(" Array ordenado: %v\n", numeros)
+}
+
+/*
+func main() {
+	fmt.Println("=== ESTRUCTURAS IF/ELSE ===")
+
+	// IF BÁSICO
+	edad := 25
+
+	if edad >= 18 {
+		fmt.Println("✅ Mayor de edad")
+	}
+
+	// IF-ELSE
+	temperatura := 22
+
+	if temperatura > 25 {
+		fmt.Println("🌡 Hace calor")
+	} else {
+		fmt.Println("🌡 Temperatura agradable")
+	}
+
+	// IF-ELSE-IF (cadena)
+	puntuacion := 85
+	if puntuacion >= 90 {
+		fmt.Println("🏆 Excelente")
+	} else if puntuacion >= 75 {
+		fmt.Println("👍 Bueno")
+	} else if puntuacion >= 60 {
+		fmt.Println("😐 Regular")
+	} else {
+		fmt.Println("😞 Necesita mejorar")
+	}
+
+	// IF CON INICIALIZACIÓN (patrón muy común en Go)
+	if hora := time.Now().Hour(); hora < 12 {
+		fmt.Println("🌅 Buenos días")
+	} else if hora < 18 {
+		fmt.Println("☀️ Buenas tardes")
+	} else {
+		fmt.Println("🌙 Buenas noches")
+	}
+
+	// VERIFICACIÓN DE ERRORES (patrón idiomático)
+	if numero, err := strconv.Atoi("123"); err != nil {
+		fmt.Printf("❌ Error de conversión: %v\n", err)
+	} else {
+		fmt.Printf("✅ Número convertido: %d\n", numero)
+	}
+	// MÚLTIPLES CONDICIONES
+	usuario := "admin"
+	password := "secret123"
+
+	if usuario == "admin" && password == "secret123" {
+		fmt.Println("🔑 Acceso concedido")
+	} else {
+		fmt.Println("🚫 Acceso denegado")
+	}
+
+	// CONDICIONES COMPLEJAS
+	estado := "activo"
+	ultimoAcceso := time.Now().Add(-24 * time.Hour)
+
+	if estado == "activo" && time.Since(ultimoAcceso) < 30*24*time.Hour {
+		fmt.Println("👤 Usuario activo y reciente")
+	} else if estado == "activo" {
+		fmt.Println("⚠️ Usuario activo pero inactivo por tiempo")
+	} else {
+		fmt.Println("❌ Usuario inactivo")
+	}
+
+	// CASOS PRÁCTICOS
+	demonstrarCasosPracticosIf()
+}
+func demonstrarCasosPracticosIf() {
+	fmt.Println("\n--- Casos prácticos con if ---")
+
+	// 1. Validación de entrada
+	email := "usuario@dominio.com"
+
+	if len(email) == 0 {
+		fmt.Println("❌ Email vacío")
+	} else if !strings.Contains(email, "@") {
+		fmt.Println("❌ Email inválido: falta @")
+	} else if !strings.Contains(email, ".") {
+		fmt.Println("❌ Email inválido: falta dominio")
+	} else {
+		fmt.Println("✅ Email válido")
+	}
+
+	// 2. Categorización de rangos
+	velocidad := 75 // km/h
+	limite := 60
+
+	if velocidad <= limite {
+		fmt.Println("🚗 Velocidad normal")
+	} else if velocidad <= limite+10 {
+		fmt.Println("⚠️ Ligero exceso de velocidad")
+	} else if velocidad <= limite+20 {
+		fmt.Println("🚨 Exceso moderado - multa")
+	} else {
+		fmt.Println("🚔 Exceso grave - suspensión")
+	}
+
+	// 3. Lógica de negocio con múltiples factores
+	edad := 25
+	experiencia := 3 // años
+	certificaciones := 2
+
+	if edad >= 21 && experiencia >= 2 && certificaciones >= 1 {
+		fmt.Println("✅ Candidato calificado para posición senior")
+	} else if edad >= 18 && (experiencia >= 1 || certificaciones >= 1) {
+		fmt.Println("✅ Candidato calificado para posición junior")
+	} else if edad >= 18 {
+		fmt.Println("⚠️ Candidato para posición de entrenamiento")
+	} else {
+		fmt.Println("❌ No cumple requisitos mínimos")
+	}
+
+	// 4. Manejo de casos especiales
+	valor := 0.0
+	if valor > 0 {
+		fmt.Printf("Valor positivo: %.2f\n", valor)
+	} else if valor < 0 {
+		fmt.Printf("Valor negativo: %.2f\n", valor)
+	} else {
+		// Caso especial: exactamente cero
+		fmt.Println("Valor es exactamente cero")
+	}
+
+	// 5. Verificación de recursos
+	memoryUsage := 85.5 // porcentaje
+	cpuUsage := 70.2
+	diskUsage := 45.0
+
+	alertLevel := "normal"
+
+	if memoryUsage > 90 || cpuUsage > 90 || diskUsage > 95 {
+		alertLevel = "crítico"
+	} else if memoryUsage > 80 || cpuUsage > 80 || diskUsage > 85 {
+		alertLevel = "warning"
+	}
+
+	switch alertLevel {
+	case "crítico":
+		fmt.Println("🚨 ALERTA CRÍTICA: Recursos del sistema agotados")
+	case "warning":
+		fmt.Println("⚠️ ADVERTENCIA: Alto uso de recursos")
+	default:
+		fmt.Println("✅ Recursos del sistema normales")
+	}
+}
+
+
+
+
+
+
+
+
+
+//SWITCH
+
+
+
+
+
+
+
+
+
+
+
 
 func main() {
 	fmt.Println("=== ESTRUCTURAS SWITCH ===")
@@ -241,154 +624,22 @@ func procesarEstado(estadoActual, evento string) string {
 	}
 }
 
-/*
-func main() {
-	fmt.Println("=== ESTRUCTURAS IF/ELSE ===")
 
-	// IF BÁSICO
-	edad := 25
 
-	if edad >= 18 {
-		fmt.Println("✅ Mayor de edad")
-	}
 
-	// IF-ELSE
-	temperatura := 22
 
-	if temperatura > 25 {
-		fmt.Println("🌡 Hace calor")
-	} else {
-		fmt.Println("🌡 Temperatura agradable")
-	}
 
-	// IF-ELSE-IF (cadena)
-	puntuacion := 85
-	if puntuacion >= 90 {
-		fmt.Println("🏆 Excelente")
-	} else if puntuacion >= 75 {
-		fmt.Println("👍 Bueno")
-	} else if puntuacion >= 60 {
-		fmt.Println("😐 Regular")
-	} else {
-		fmt.Println("😞 Necesita mejorar")
-	}
 
-	// IF CON INICIALIZACIÓN (patrón muy común en Go)
-	if hora := time.Now().Hour(); hora < 12 {
-		fmt.Println("🌅 Buenos días")
-	} else if hora < 18 {
-		fmt.Println("☀️ Buenas tardes")
-	} else {
-		fmt.Println("🌙 Buenas noches")
-	}
+// ESTRUCTURA FOR
 
-	// VERIFICACIÓN DE ERRORES (patrón idiomático)
-	if numero, err := strconv.Atoi("123"); err != nil {
-		fmt.Printf("❌ Error de conversión: %v\n", err)
-	} else {
-		fmt.Printf("✅ Número convertido: %d\n", numero)
-	}
-	// MÚLTIPLES CONDICIONES
-	usuario := "admin"
-	password := "secret123"
 
-	if usuario == "admin" && password == "secret123" {
-		fmt.Println("🔑 Acceso concedido")
-	} else {
-		fmt.Println("🚫 Acceso denegado")
-	}
 
-	// CONDICIONES COMPLEJAS
-	estado := "activo"
-	ultimoAcceso := time.Now().Add(-24 * time.Hour)
 
-	if estado == "activo" && time.Since(ultimoAcceso) < 30*24*time.Hour {
-		fmt.Println("👤 Usuario activo y reciente")
-	} else if estado == "activo" {
-		fmt.Println("⚠️ Usuario activo pero inactivo por tiempo")
-	} else {
-		fmt.Println("❌ Usuario inactivo")
-	}
 
-	// CASOS PRÁCTICOS
-	demonstrarCasosPracticosIf()
-}
-func demonstrarCasosPracticosIf() {
-	fmt.Println("\n--- Casos prácticos con if ---")
 
-	// 1. Validación de entrada
-	email := "usuario@dominio.com"
 
-	if len(email) == 0 {
-		fmt.Println("❌ Email vacío")
-	} else if !strings.Contains(email, "@") {
-		fmt.Println("❌ Email inválido: falta @")
-	} else if !strings.Contains(email, ".") {
-		fmt.Println("❌ Email inválido: falta dominio")
-	} else {
-		fmt.Println("✅ Email válido")
-	}
 
-	// 2. Categorización de rangos
-	velocidad := 75 // km/h
-	limite := 60
 
-	if velocidad <= limite {
-		fmt.Println("🚗 Velocidad normal")
-	} else if velocidad <= limite+10 {
-		fmt.Println("⚠️ Ligero exceso de velocidad")
-	} else if velocidad <= limite+20 {
-		fmt.Println("🚨 Exceso moderado - multa")
-	} else {
-		fmt.Println("🚔 Exceso grave - suspensión")
-	}
 
-	// 3. Lógica de negocio con múltiples factores
-	edad := 25
-	experiencia := 3 // años
-	certificaciones := 2
 
-	if edad >= 21 && experiencia >= 2 && certificaciones >= 1 {
-		fmt.Println("✅ Candidato calificado para posición senior")
-	} else if edad >= 18 && (experiencia >= 1 || certificaciones >= 1) {
-		fmt.Println("✅ Candidato calificado para posición junior")
-	} else if edad >= 18 {
-		fmt.Println("⚠️ Candidato para posición de entrenamiento")
-	} else {
-		fmt.Println("❌ No cumple requisitos mínimos")
-	}
-
-	// 4. Manejo de casos especiales
-	valor := 0.0
-	if valor > 0 {
-		fmt.Printf("Valor positivo: %.2f\n", valor)
-	} else if valor < 0 {
-		fmt.Printf("Valor negativo: %.2f\n", valor)
-	} else {
-		// Caso especial: exactamente cero
-		fmt.Println("Valor es exactamente cero")
-	}
-
-	// 5. Verificación de recursos
-	memoryUsage := 85.5 // porcentaje
-	cpuUsage := 70.2
-	diskUsage := 45.0
-
-	alertLevel := "normal"
-
-	if memoryUsage > 90 || cpuUsage > 90 || diskUsage > 95 {
-		alertLevel = "crítico"
-	} else if memoryUsage > 80 || cpuUsage > 80 || diskUsage > 85 {
-		alertLevel = "warning"
-	}
-
-	switch alertLevel {
-	case "crítico":
-		fmt.Println("🚨 ALERTA CRÍTICA: Recursos del sistema agotados")
-	case "warning":
-		fmt.Println("⚠️ ADVERTENCIA: Alto uso de recursos")
-	default:
-		fmt.Println("✅ Recursos del sistema normales")
-	}
-}
 */
