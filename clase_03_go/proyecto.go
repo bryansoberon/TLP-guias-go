@@ -1,6 +1,6 @@
-package main
+package clase_03_go
 
-import "fmt"
+import "fmt" 
 
 // Definición básica de un struct
 type Usuario struct {
@@ -98,13 +98,13 @@ func main() {
 	}
 	// Inicialización parcial (otros campos toman valor cero)
 	u3 := Usuario{
-		Nombre: "Daniela",
-		Email:  "daniela@email.com",
+		Nombre: "Claudia",
+		Email:  "claudia@email.com",
 	}
 	// Usando punteros (más eficiente para structs grandes)
 	u4 := &Usuario{
 		ID:     2,
-		Nombre: "Claudia",
+		Nombre: "Bernabe",
 	}
 
 	//structs ANONIMOS
@@ -154,11 +154,11 @@ func main() {
 	fmt.Println("Después de original:", contador.valor)
 
 	// Métodos con receptor valor y puntero
-	usuario := Usuario{Nombre: "Carlos"}
+	usuario := Usuario{Nombre: "Bryan"}
 	usuario.MetodoValor()
 	usuario.MetodoPuntero()
 
-	ptr := &Usuario{Nombre: "Carlos"}
+	ptr := &Usuario{Nombre: "Bernabe"}
 	ptr.MetodoValor()
 	ptr.MetodoPuntero()
 
