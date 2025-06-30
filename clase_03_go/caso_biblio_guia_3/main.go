@@ -412,10 +412,10 @@ func main() {
 	usuarios := []struct {
 		nombre, email, telefono string
 	}{
-		{"Carlos", "carlos@gmail.com", "+56 999 999 999"},
-		{"Maria", "maria@gmail.com", "+56 999 999 999"},
+		{"Bryan", "carlos@gmail.com", "+51 999 999 999"},
+		{"Claudia", "claudia@gmail.com", "+56 999 999 999"},
 		{"Juan", "juan@gmail.com", "+56 999 999 999"},
-		{"Pedro", "pedro@gmail.com", "+56 999 999 999"},
+		{"Myson", "myson@gmail.com", "+56 999 999 999"},
 	}
 
 	for _, u := range usuarios {
